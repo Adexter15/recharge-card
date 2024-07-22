@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      #loader {
+        padding: 20px;
+        font-size: 20px;
+        background-color: rgba(0, 255, 238, 0.164);
+      }
+
+      #provider,
+      #amount {
+        font-size: 20px;
+        margin: 10px;
+        background-color: rgba(0, 255, 238, 0.164);
+      }
+
+      button {
+        padding: 10px;
+        font-size: 20px;
+        background-color: rgba(0, 0, 255, 0.28);
+        cursor: pointer;
+      }
+
+      p,
+      label {
+        font-size: 20px;
+      }
+
+      th {
+        font-size: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <label for="provider"> provider </label>
+      <select name="" id="provider">
+        <option value="">choose provider</option>
+        <option value="mtn">mtn</option>
+        <option value="glo">glo</option>
+        <option value="9mobile">9mobile</option>
+        <option value="airtel">airtel</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="amount"> amount </label>
+      <select name="" id="amount">
+        <option value="">choose amount</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+        <option value="500">500</option>
+        <option value="1000">1000</option>
+      </select>
+    </div>
+
+    <button onclick="generate()">Generate</button>
+    <h1>pin: <span id="pine"> </span></h1>
+
+    <div>
+      <p>load airtime</p>
+      <h1>
+        <input id="loader" />
+        <button onclick="load()">load</button>
+      </h1>
+
+      <h1>Balance : <span id="thebal"> </span></h1>
+
+      <table id="table">
+        <thead id="thead">
+          <th>provider</th>
+          <th>amount</th>
+          <th>pin</th>
+          <th>used</th>
+        </thead>
+        <tbody id="tbody">
+          <tr></tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
+<script>
+  let rechargeCards = JSON.parse(localStorage.getItem("rechargeCards")) || [];
+  function generate(params) {
+    let pin = "";
+    for (i = 0; i < 15; i++) {
+      let num = Math.floor(Math.random() * 10);
+      pin += num;
+    }
+    if (provider.value === "" || amount.value === "") {
+      alert("please fill all the fields");
+    } else {
+      pine.innerHTML = pin;
+      let pinObject = {
+        provider: provider.value,
+        amount: amount.value,
+        pin: pin,
+        used: false,
+      };
+      rechargeCards.push(pinObject);
+      console.log(rechargeCards);
+      localStorage.setItem("rechargeCards", JSON.stringify(rechargeCards));
+      display();
+    }
+  }
+
+  function load() {
+    let recharger = loader.value;
+    let thePin = recharger.slice(5, 20);
+    console.log(thePin);
+
+    let obj = rechargeCards.find((rechargecard) => rechargecard.pin === thePin);
+
+    console.log(obj);
+
+    if (obj === undefined) {
+      alert("invalid pin");
+    } else if (obj && obj.used === true) {
+      alert("this card has been used by you");
+    } else if (
+      recharger.startsWith("*310*") &&
+      recharger.endsWith("#") &&
+      obj
+    ) {
+      alert(`you have successfully recharged ${obj.provider} of ${obj.amount}`);
+      obj.used = true;
+      localStorage.setItem("rechargeCards", JSON.stringify(rechargeCards));
+
+      balance = balance + Number(obj.amount);
+      localStorage.setItem("mybal", balance);
+      thebal.innerHTML = balance;
+
+      display();
+    } else {
+      alert("invalid format");
+    }
+  }
+</script>
